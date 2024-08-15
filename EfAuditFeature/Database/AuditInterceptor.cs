@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace EfAuditFeathre.Database;
@@ -6,10 +7,13 @@ namespace EfAuditFeathre.Database;
 public class AuditInterceptor : SaveChangesInterceptor
 {
     private readonly List<AuditEntity> _auditEntities;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-    public AuditInterceptor(List<AuditEntity> auditEntities)
+    public AuditInterceptor(List<AuditEntity> auditEntities,
+        IPublishEndpoint publishEndpoint)
     {
         _auditEntities = auditEntities;
+        _publishEndpoint = publishEndpoint;
     }
 
     public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result,
@@ -61,9 +65,10 @@ public class AuditInterceptor : SaveChangesInterceptor
 
         if(_auditEntities.Count > 0)
         {
-            eventData.Context.Set<AuditEntity>().AddRange(_auditEntities);
-            _auditEntities.Clear();
-            await eventData.Context.SaveChangesAsync(cancellationToken);
+            await _publishEndpoint.Publish(new AuditTrailMessage
+            {
+                AuditEntities = _auditEntities
+            });
         }
 
         return await base.SavedChangesAsync(eventData, result, cancellationToken);
@@ -71,6 +76,31 @@ public class AuditInterceptor : SaveChangesInterceptor
 
     public override async Task SaveChangesFailedAsync(DbContextErrorEventData eventData, CancellationToken cancellationToken = default)
     {
+        if (eventData.Context is null)
+        {
+            return;
+        }
 
+        var endTime = DateTime.UtcNow;
+
+        foreach (var auditEntity in _auditEntities)
+        {
+            auditEntity.EndTimeUtc = endTime;
+            auditEntity.Succeeded = false;
+            auditEntity.ErrorMessage = eventData.Exception.Message;
+        }
+
+        if (_auditEntities.Count > 0)
+        {
+            await _publishEndpoint.Publish(new AuditTrailMessage
+            {
+                AuditEntities = _auditEntities
+            });
+        }
     }
+}
+
+public record AuditTrailMessage
+{
+    public List<AuditEntity> AuditEntities { get; set; } = [];
 }

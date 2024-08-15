@@ -1,4 +1,5 @@
 ﻿using EfAuditFeathre.Models;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
@@ -7,11 +8,14 @@ namespace EfAuditFeathre.Database;
 public class AppDbContext : DbContext
 {
     private readonly List<AuditEntity> _auditEntities;
+    private readonly IPublishEndpoint _publishEndpoint;
 
     public AppDbContext(DbContextOptions<AppDbContext> options,
-        List<AuditEntity> auditEntities) : base(options)
+        [FromKeyedServices("Audit")] List<AuditEntity> auditEntities,
+        IPublishEndpoint publishEndpoint) : base(options)
     {
         _auditEntities = auditEntities;
+        _publishEndpoint = publishEndpoint;
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
