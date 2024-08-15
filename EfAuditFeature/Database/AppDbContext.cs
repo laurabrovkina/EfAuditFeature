@@ -6,13 +6,18 @@ namespace EfAuditFeathre.Database;
 
 public class AppDbContext : DbContext
 {
-    public AppDbContext()
+    private readonly List<AuditEntity> _auditEntities;
+
+    public AppDbContext(DbContextOptions<AppDbContext> options,
+        List<AuditEntity> auditEntities) : base(options)
     {
+        _auditEntities = auditEntities;
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlite("Data Source=app.db");
+        optionsBuilder.UseSqlite("Data Source=app.db")
+            .AddInterceptors(new AuditInterceptor(_auditEntities));
     }
 
     public DbSet<Person> People { get; set; }

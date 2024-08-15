@@ -1,2 +1,1 @@
-# EF Audit Feature with AWS SNS
-
+# EF Audit Feature with AWS SQS
