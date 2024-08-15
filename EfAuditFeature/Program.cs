@@ -14,6 +14,7 @@ builder.Services.AddScoped<IPersonService, PersonService>();
 
 builder.Services.AddMassTransit(x =>
 {
+    x.AddConsumers(typeof(Program).Assembly);
     x.UsingAmazonSqs((context, cfg) =>
     {
         cfg.Host("us-east-1", _ => { });

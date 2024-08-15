@@ -21,7 +21,7 @@ public class AppDbContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseSqlite("Data Source=app.db")
-            .AddInterceptors(new AuditInterceptor(_auditEntities));
+            .AddInterceptors(new AuditInterceptor(_auditEntities, _publishEndpoint));
     }
 
     public DbSet<Person> People { get; set; }
