@@ -63,13 +63,13 @@ public class AuditInterceptor : SaveChangesInterceptor
             auditEntity.Succeeded = true;
         }
 
-        if(_auditEntities.Count > 0)
-        {
-            await _publishEndpoint.Publish(new AuditTrailMessage
-            {
-                AuditEntities = _auditEntities
-            });
-        }
+        //if(_auditEntities.Count > 0)
+        //{
+        //    await _publishEndpoint.Publish(new AuditTrailMessage
+        //    {
+        //        AuditEntities = _auditEntities
+        //    });
+        //}
 
         return await base.SavedChangesAsync(eventData, result, cancellationToken);
     }
@@ -90,13 +90,13 @@ public class AuditInterceptor : SaveChangesInterceptor
             auditEntity.ErrorMessage = eventData.Exception.Message;
         }
 
-        if (_auditEntities.Count > 0)
-        {
-            await _publishEndpoint.Publish(new AuditTrailMessage
-            {
-                AuditEntities = _auditEntities
-            });
-        }
+        //if (_auditEntities.Count > 0)
+        //{
+        //    await _publishEndpoint.Publish(new AuditTrailMessage
+        //    {
+        //        AuditEntities = _auditEntities
+        //    });
+        //}
     }
 }
 
