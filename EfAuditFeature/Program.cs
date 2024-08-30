@@ -1,4 +1,5 @@
 using EfAuditFeathre.Database;
+using EfAuditFeathre.Publisher;
 using EfAuditFeathre.Services;
 using MassTransit;
 
@@ -21,6 +22,8 @@ builder.Services.AddMassTransit(x =>
         cfg.ConfigureEndpoints(context);
     });
 });
+
+builder.Services.AddScoped<IPublishEvents, PublishEvents>();
 
 var app = builder.Build();
 
