@@ -1,16 +1,20 @@
 using Microsoft.AspNetCore.Mvc;
 using EfAuditFeathre.Services;
 using EfAuditFeathre.Models;
+using EfAuditFeathre.Publisher;
 
 namespace EfAuditFeathre.Controllers
 {
     public class PeopleController : ControllerBase
     {
         private readonly IPersonService _personService;
+        private readonly IPublishEvents _publishEvents;
 
-        public PeopleController(IPersonService personService)
+        public PeopleController(IPersonService personService,
+            IPublishEvents publishEvents)
         {
             _personService = personService;
+            _publishEvents = publishEvents;
         }
 
         [HttpGet("people")]
@@ -35,6 +39,9 @@ namespace EfAuditFeathre.Controllers
         public IActionResult AddPerson([FromBody] Person person)
         {
             _personService.Add(person);
+
+            _publishEvents.PublishMessageAsync(person);
+
             return Ok();
         }
 
