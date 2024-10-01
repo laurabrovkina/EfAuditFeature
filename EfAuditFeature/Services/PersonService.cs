@@ -1,5 +1,6 @@
 ﻿using EfAuditFeathre.Database;
 using EfAuditFeathre.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace EfAuditFeathre.Services;
 
@@ -35,15 +36,14 @@ public class PersonService : IPersonService
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task Delete(Guid id)
+    public async Task<bool> DeleteById(Guid id)
     {
-        var person = GetById(id)
-            ?? throw new Exception("Person has not found,");
-        
-        if (person != null)
-        {
-            _dbContext.People.Remove(person);
-            await _dbContext.SaveChangesAsync();
-        }
+        var result = await _dbContext.People
+            .Where(p => p.Id == id && !p.IsDeleted)
+            .ExecuteUpdateAsync(x => x
+                .SetProperty(s => s.IsDeleted, true)
+                .SetProperty(s => s.DeletedAtUtc, DateTime.UtcNow));
+
+        return result > 0;
     }
 }
