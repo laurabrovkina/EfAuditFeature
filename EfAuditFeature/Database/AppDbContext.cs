@@ -24,6 +24,11 @@ public class AppDbContext : DbContext
             .AddInterceptors(new AuditInterceptor(_auditEntities, _publishEndpoint));
     }
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Person>().HasQueryFilter(x => !x.IsDeleted);
+    }
+
     public DbSet<Person> People { get; set; }
     public DbSet<AuditEntity> AuditEntities { get; set; }
 }
