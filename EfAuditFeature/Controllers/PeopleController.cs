@@ -18,14 +18,14 @@ namespace EfAuditFeathre.Controllers
         }
 
         [HttpGet("people")]
-        public IActionResult GetPeople()
+        public IActionResult GetAll()
         {
             var people = _personService.GetAll();
             return Ok(people);
         }
 
         [HttpGet("people/{id}")]
-        public IActionResult GetPerson(Guid id)
+        public IActionResult Get(Guid id)
         {
             var person = _personService.GetById(id);
             if (person == null)
@@ -36,7 +36,7 @@ namespace EfAuditFeathre.Controllers
         }
 
         [HttpPost("people")]
-        public IActionResult AddPerson([FromBody] Person person)
+        public IActionResult Create([FromBody] Person person)
         {
             _personService.Add(person);
 
@@ -46,7 +46,7 @@ namespace EfAuditFeathre.Controllers
         }
 
         [HttpPut("people/{id}")]
-        public IActionResult UpdatePerson(Guid id, [FromBody] Person person)
+        public IActionResult Update(Guid id, [FromBody] Person person)
         {
             var existingPerson = _personService.GetById(id);
             if (existingPerson == null)
@@ -58,15 +58,10 @@ namespace EfAuditFeathre.Controllers
         }
 
         [HttpDelete("people/{id}")]
-        public IActionResult DeletePerson(Guid id)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            var existingPerson = _personService.GetById(id);
-            if (existingPerson == null)
-            {
-                return NotFound();
-            }
-            _personService.Delete(id);
-            return Ok();
+            var deleted = await _personService.DeleteById(id);
+            return deleted ? Ok() : NotFound();
         }
     }
 }
