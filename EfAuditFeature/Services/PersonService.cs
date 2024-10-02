@@ -13,18 +13,20 @@ public class PersonService : IPersonService
         _dbContext = dbContext;
     }
 
-    public IEnumerable<Person> GetAll()
+    public async Task<IEnumerable<Person>> GetAll()
     {
-        return _dbContext.People.ToList();
+        //return await _dbContext.People.ToListAsync();
+
+        // Returns all records from db, soft deleted and active
+        return await _dbContext.People.IgnoreQueryFilters().ToListAsync();
     }
 
-    public Person GetById(Guid id)
+    public async Task<Person?> GetById(Guid id)
     {
-        return _dbContext.People.FirstOrDefault(p => p.Id == id) 
-            ?? throw new Exception("Person has not found,");
+        return await _dbContext.People.FindAsync(id);
     }
 
-    public async Task Add(Person person)
+    public async Task Create(Person person)
     {
         _dbContext.People.Add(person);
         await _dbContext.SaveChangesAsync();
