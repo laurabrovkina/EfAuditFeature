@@ -26,7 +26,12 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Person>().HasQueryFilter(x => !x.IsDeleted);
+        modelBuilder.Entity<Person>()
+            .HasQueryFilter(x => !x.IsDeleted);
+
+        modelBuilder.Entity<Person>()
+            .HasIndex(x => x.IsDeleted)
+            .HasFilter("IsDeleted = 0");
     }
 
     public DbSet<Person> People { get; set; }
