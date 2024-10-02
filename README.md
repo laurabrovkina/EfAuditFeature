@@ -52,3 +52,5 @@ After that change instead of updating every endpoint, the filter on db context c
     }
 ```
 **Note**: Implementation of the `PeopleController` requires refactoring with using DTO models and adjust logic for each endpoint.
+This is how soft delete looks in database:
+![Image](./Img/soft-delete.jpg)
